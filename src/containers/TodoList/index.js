@@ -1,45 +1,55 @@
 import React, {useState} from "react";
+import NewTodo from "./NewTodo";
+import TodoItem from "./TodoItem";
+import {Container, List} from "./Styled";
 
 export default function TodoList() {
-  const [text, setText] = useState("");
-  const [checked, setChecked] = useState(false);
+  const [newTodo, updateNewTodo] = useState("");
+  const [todos, updateTodos] = useState([]);
 
-  const handleSetText = e =>
-    setText(e.target.value);
-  const handleCheckboxToggle = e =>
-    setChecked(!checked);
+  const handleNewChange = (e) => {
+    updateNewTodo(e.target.value);
+  }
+  const handleNewSubmit = (e) => {
+    e.preventDefault();
+    updateTodos(preTodos => [
+      ...preTodos,
+      {id: Date.now(), text: newTodo, completed: false}
+    ]);
+    updateNewTodo("");
+  }
+  const handleDelete = (id) => {
+    updateTodos(prevState =>
+      prevState.filter(todo => todo.id !== id));
+  }
+  const handleCompletedToggle = (id) => {
+    updateTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo.id === id ? {...todo, completed: !todo.completed} : todo
+      )
+    );
+  }
+
   return (
-    <section>
-      <input
-        type="text"
-        value={text}
-        onChange={handleSetText}
+    <Container todos={todos}>
+      <NewTodo
+        onSubmit={handleNewSubmit}
+        value={newTodo}
+        onChange={handleNewChange}
       />
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={handleCheckboxToggle}
-      />
-      <ul>
-        <li>{text}</li>
-        <li>{checked.toString()}</li>
-      </ul>
-    </section>
+      {!!todos.length && (
+        <List>
+          {todos.map(todo => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onChange={handleCompletedToggle}
+              onDelete={handleDelete}
+            />
+          ))}
+        </List>
+      )}
+    </Container>
   );
 
-}
-
-export function PlaygroundX() {
-  return (
-    <section>
-      <input type="text" value={""} onChange={e => {
-      }}/>
-      <input type="checkbox" checked={false} onChange={e => {
-      }}/>
-      <ul>
-        <li>{""}</li>
-        <li>{""}</li>
-      </ul>
-    </section>
-  );
 }
